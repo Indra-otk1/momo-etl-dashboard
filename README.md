@@ -15,7 +15,7 @@
 
 
 ## Scrum Board
-[GitHub Projects / Trello link]
+https://trello.com/b/JMdXRS08
 
 ## Quick Start
 See `scripts/run_etl.sh`
