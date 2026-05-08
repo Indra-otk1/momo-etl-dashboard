@@ -1,0 +1,6 @@
+lxml
+python-dateutil
+pandas
+fastapi
+uvicorn
+pytest
