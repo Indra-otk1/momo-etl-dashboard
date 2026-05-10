@@ -10,7 +10,7 @@
 ...
 
 ## Architecture Diagram
-[[Link to Draw.io / image in repo](docs/architecture.png)](https://drive.google.com/file/d/1J1C03lxPXahCgGqCN71RVSY6Zuyh8oDE/view?usp=sharing)
+https://drive.google.com/file/d/1J1C03lxPXahCgGqCN71RVSY6Zuyh8oDE/view?usp=sharing
 <img width="1252" height="506" alt="image" src="https://github.com/user-attachments/assets/d6337c38-0930-4315-bf55-fa3e4a82229b" />
 
 
