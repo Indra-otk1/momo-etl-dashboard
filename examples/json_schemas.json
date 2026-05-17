@@ -1,0 +1,166 @@
+{
+  "_comment": "MoMo SMS Data Processing System — JSON Schemas & Examples",
+  "_description": "Each section shows how a SQL table row maps to a JSON API response object.",
+
+  "schemas": {
+
+    "transaction_category": {
+      "_sql_table": "transaction_categories",
+      "_description": "Lookup object representing a transaction type",
+      "example": {
+        "category_id": 1,
+        "category_name": "INCOMING_MONEY",
+        "category_code": "IN",
+        "description": "Money received from another MoMo user",
+        "created_at": "2024-01-01T00:00:00Z"
+      }
+    },
+
+    "user": {
+      "_sql_table": "users",
+      "_description": "A person or business involved in MoMo transactions",
+      "example": {
+        "user_id": 5,
+        "phone_number": "+250788100005",
+        "full_name": "Claude Habimana",
+        "user_type": "INDIVIDUAL",
+        "created_at": "2024-01-10T07:00:00Z",
+        "updated_at": "2024-01-18T16:00:00Z"
+      }
+    },
+
+    "transaction": {
+      "_sql_table": "transactions",
+      "_description": "A single flat transaction row (no joins)",
+      "example": {
+        "transaction_id": 1,
+        "external_id": "TXN-0001",
+        "category_id": 1,
+        "amount": "50000.00",
+        "fee": "0.00",
+        "balance_after": "250000.00",
+        "transaction_date": "2024-01-15T08:23:00Z",
+        "status": "SUCCESS",
+        "note": "Rent payment received",
+        "created_at": "2024-01-15T08:23:05Z"
+      }
+    },
+
+    "transaction_participant": {
+      "_sql_table": "transaction_participants",
+      "_description": "Junction record linking a user to a transaction with their role",
+      "example": {
+        "participant_id": 1,
+        "transaction_id": 1,
+        "user_id": 1,
+        "role": "SENDER"
+      }
+    },
+
+    "system_log": {
+      "_sql_table": "system_logs",
+      "_description": "One ETL pipeline event log entry",
+      "example": {
+        "log_id": 5,
+        "transaction_id": null,
+        "log_level": "ERROR",
+        "event_type": "PARSE_FAILED",
+        "message": "Could not parse SMS: 'Yego, valid 24hrs. Enjoy!' — no transaction data found.",
+        "source_file": "data/raw/momo.xml",
+        "logged_at": "2024-01-18T09:05:12Z"
+      }
+    },
+
+    "transaction_full": {
+      "_sql_table": "transactions (joined with users, transaction_categories)",
+      "_description": "COMPLEX OBJECT — A complete transaction as an API response would return it. Nests the category object and both participants (sender + receiver) directly inside the transaction, avoiding multiple round trips to the API.",
+      "_sql_to_json_mapping": {
+        "transactions.transaction_id":           "transaction_id",
+        "transactions.external_id":              "external_id",
+        "transaction_categories.category_name":  "category.category_name",
+        "transaction_categories.category_code":  "category.category_code",
+        "transactions.amount":                   "amount",
+        "transactions.fee":                      "fee",
+        "transactions.balance_after":            "balance_after",
+        "transactions.transaction_date":         "transaction_date",
+        "transactions.status":                   "status",
+        "transactions.note":                     "note",
+        "users.full_name (SENDER)":              "participants[0].user.full_name",
+        "users.phone_number (SENDER)":           "participants[0].user.phone_number",
+        "users.full_name (RECEIVER)":            "participants[1].user.full_name",
+        "users.phone_number (RECEIVER)":         "participants[1].user.phone_number"
+      },
+      "example": {
+        "transaction_id": 3,
+        "external_id": "TXN-0003",
+        "category": {
+          "category_id": 3,
+          "category_name": "PAYMENT",
+          "category_code": "PAY",
+          "description": "Payment to a merchant or service"
+        },
+        "amount": "15000.00",
+        "fee": "150.00",
+        "balance_after": "214650.00",
+        "transaction_date": "2024-01-16T09:00:00Z",
+        "status": "SUCCESS",
+        "note": "Monthly electricity bill",
+        "raw_sms_text": "Payment of 15,000 RWF to Kigali Electricity completed. Fee: 150 RWF. Balance: 214,650 RWF.",
+        "participants": [
+          {
+            "role": "SENDER",
+            "user": {
+              "user_id": 5,
+              "full_name": "Claude Habimana",
+              "phone_number": "+250788100005",
+              "user_type": "INDIVIDUAL"
+            }
+          },
+          {
+            "role": "RECEIVER",
+            "user": {
+              "user_id": 4,
+              "full_name": "Kigali Electricity",
+              "phone_number": "+250788100004",
+              "user_type": "BUSINESS"
+            }
+          }
+        ],
+        "created_at": "2024-01-16T09:00:03Z"
+      }
+    },
+
+    "analytics_summary": {
+      "_description": "Example of what the /analytics API endpoint or dashboard.json might return — aggregated data for the frontend dashboard",
+      "example": {
+        "generated_at": "2024-01-19T00:00:00Z",
+        "period": {
+          "from": "2024-01-01T00:00:00Z",
+          "to": "2024-01-31T23:59:59Z"
+        },
+        "totals": {
+          "total_transactions": 7,
+          "successful_transactions": 6,
+          "failed_transactions": 1,
+          "total_amount_rwf": "221000.00",
+          "total_fees_rwf": "1210.00"
+        },
+        "by_category": [
+          { "category_name": "BANK_TRANSFER",    "count": 1, "total_amount": "100000.00" },
+          { "category_name": "INCOMING_MONEY",   "count": 1, "total_amount": "50000.00"  },
+          { "category_name": "CASH_WITHDRAWAL",  "count": 1, "total_amount": "30000.00"  },
+          { "category_name": "OUTGOING_MONEY",   "count": 2, "total_amount": "25000.00"  },
+          { "category_name": "PAYMENT",          "count": 1, "total_amount": "15000.00"  },
+          { "category_name": "AIRTIME_PURCHASE", "count": 1, "total_amount": "1000.00"   }
+        ],
+        "etl_health": {
+          "total_sms_processed": 50,
+          "successfully_parsed": 47,
+          "warnings": 1,
+          "errors": 1,
+          "duplicates_skipped": 1
+        }
+      }
+    }
+  }
+}
