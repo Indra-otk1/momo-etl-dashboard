@@ -12,7 +12,8 @@
 A data pipeline and analytics dashboard for processing MTN MoMo SMS notifications. XML data is parsed, cleaned, categorized, and stored in a relational database, then visualized through a static frontend dashboard.
 
 ## Architecture Diagram
-![Architecture](docs/architecture_diagram.png)
+![Architecture](<img width="1021" height="391" alt="Momo" src="https://github.com/user-attachments/assets/17b930e1-2569-487e-b36a-e9129af50c41" />
+)
 > Full diagram: https://drive.google.com/file/d/1J1C03lxPXahCgGqCN71RVSY6Zuyh8oDE/view?usp=sharing
 
 ## Database Design
