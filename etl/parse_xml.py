@@ -40,24 +40,25 @@ def parse_date(text):
 
 
 def categorize(body):
-    """Simple keyword rules to assign a category from SMS body text."""
     body_lower = (body or "").lower()
     if "you have received" in body_lower:
         return "INCOMING_MONEY"
-    if "payment of" in body_lower or "you have paid" in body_lower:
-        return "PAYMENT"
+    if "bank deposit" in body_lower:
+        return "CASH_DEPOSIT"
+    if "withdrawn" in body_lower or "cash withdrawal" in body_lower:
+        return "CASH_WITHDRAWAL"
     if "airtime" in body_lower:
         return "AIRTIME_PURCHASE"
-    if "cash withdrawal" in body_lower or "withdrawn" in body_lower:
-        return "CASH_WITHDRAWAL"
-    if "deposit" in body_lower:
-        return "CASH_DEPOSIT"
-    if "bank" in body_lower or "transfer to" in body_lower:
-        return "BANK_TRANSFER"
-    if "bundle" in body_lower or "internet" in body_lower:
+    if "bundles and packs" in body_lower:
         return "BUNDLE_PURCHASE"
-    if "sent to" in body_lower or "transferred to" in body_lower:
+    if "cash power" in body_lower or "wasac" in body_lower:
+        return "PAYMENT"
+    if "transferred to" in body_lower:
         return "OUTGOING_MONEY"
+    if "your payment of" in body_lower:
+        return "PAYMENT"
+    if "one-time password" in body_lower or "password is" in body_lower:
+        return None  # skip OTP messages
     return "UNKNOWN"
 
 
@@ -119,7 +120,8 @@ def parse_xml(filepath):
         sms_type = sms.get("type", "")  # 1 = received, 2 = sent (Android backup format)
 
         # Skip non-MoMo messages
-        if not body or "momo" not in body.lower() and "rwf" not in body.lower():
+        category = categorize(body)
+        if category is None:
             dead_letters.append({"index": idx, "body": body[:120]})
             continue
 
