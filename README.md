@@ -67,3 +67,5 @@ ERD: [`docs/erd_drawing.md`](docs/erd_drawing.md) · SQL: [`database/database_se
 
 ## Scrum Board
 https://trello.com/b/JMdXRS08
+
+Team Participation sheet: https://docs.google.com/spreadsheets/d/1m4t3oPV9ZABsXWPF-fuJEvMnu-5w2bsB9TePtScwV4g/edit?gid=0#gid=0
