@@ -152,11 +152,18 @@ def parse_xml(filepath):
 
 if __name__ == "__main__":
     import sys
+    import os
 
-    xml_path = sys.argv[1] if len(sys.argv) > 1 else "data/raw/modified_sms_v2.xml"
+    # Always resolve paths relative to the project root
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    if len(sys.argv) > 1:
+        xml_path = sys.argv[1]
+    else:
+        xml_path = os.path.join(project_root, "data", "raw", "modified_sms_v2.xml")
+
+    print(f"Looking for XML at: {xml_path}")
     txns, dead = parse_xml(xml_path)
-
-    # Pretty-print first 3 records as a sanity check
     print(json.dumps(txns[:3], indent=2))
     print(f"\nTotal parsed: {len(txns)}")
     print(f"Dead letters: {len(dead)}")
